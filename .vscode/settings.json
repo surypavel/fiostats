@@ -1,0 +1,8 @@
+{
+    "elixirLS.projectDir": "fiostats",
+    "editor.defaultFormatter": "JakeBecker.elixir-ls",
+    "editor.formatOnSave": true,
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
+}
