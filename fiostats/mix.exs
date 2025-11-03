@@ -34,12 +34,12 @@ defmodule Fiostats.MixProject do
   defp deps do
     [
       {:oban, "~> 2.0"},
-      {:ash_ai, "~> 0.1"},
+      {:ash_ai, "~> 0.2"},
       {:contex, "~> 0.5.0"},
       {:httpoison, "~> 2.0"},
       {:ash_postgres, "~> 2.0"},
       {:ash_phoenix, "~> 2.0"},
-      {:ash, "~> 3.0"},
+      {:ash, "~> 3.7"},
       {:igniter, "~> 0.3"},
       {:phoenix, "~> 1.8.0"},
       {:phoenix_ecto, "~> 4.5"},
@@ -69,7 +69,7 @@ defmodule Fiostats.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
-      {:langchain, "~> 0.3.0"},
+      {:langchain, "~> 0.4"},
       {:kino, "~> 0.12.0"},
       {:ash_oban, "~> 0.4"}
     ]
