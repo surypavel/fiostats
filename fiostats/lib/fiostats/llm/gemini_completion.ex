@@ -16,7 +16,7 @@ defmodule Fiostats.LLM.GeminiCompletion do
       |> Enum.map(fn t -> t.id <> " (" <> t.llm_description <> ")\n" end)
 
     llm_response =
-      %{llm: ChatGoogleAI.new!(%{model: "gemini-2.0-flash", api_key: api_key})}
+      %{llm: ChatGoogleAI.new!(%{model: "gemini-2.5-flash", api_key: api_key})}
       |> LLMChain.new!()
       |> LLMChain.add_messages([
         Message.new_system!(
