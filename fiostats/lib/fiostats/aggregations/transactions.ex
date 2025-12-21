@@ -39,11 +39,11 @@ defmodule Fiostats.Aggregations.Transactions do
     |> maybe_filter_lte(filter.date_to, :date)
   end
 
-  def get_data(filter) do
+  def get_data(filter, page_opts \\ [limit: 50, count: true]) do
     payments =
       Fiostats.Transactions.Transaction
       |> Ash.Query.for_read(:keyset)
-      |> Ash.Query.page(limit: 100, count: true)
+      |> Ash.Query.page(page_opts)
       |> apply_filter(filter)
       |> Ash.Query.sort(external_id: :desc)
       |> Ash.read!()
@@ -70,6 +70,6 @@ defmodule Fiostats.Aggregations.Transactions do
       ])
       |> Fiostats.Repo.all()
 
-    %{payments: payments.results, payments_count: payments.count, graph_data: graph_data}
+    %{payments_page: payments, graph_data: graph_data}
   end
 end
