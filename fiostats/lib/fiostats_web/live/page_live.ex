@@ -116,8 +116,8 @@ defmodule FiostatsWeb.PageLive do
       </div>
     </div>
 
-    <div class="px-2 py-2 sm:px-4 sm:py-4 lg:px-8 lg:py-8">
-      <div class="mx-auto lg:mx-0">
+    <div class="container mx-auto px-4 py-8 space-y-8">
+      <div>
         <div class="md:space-y-6 space-y-2">
           <FiostatsWeb.Components.FilterComponent.filter options={@options} filter={@filter} />
 
