@@ -46,7 +46,7 @@ defmodule FiostatsWeb.PageLive do
      socket
      |> assign(:options, Fiostats.Transactions.TransactionTypes.get_options())
      |> assign(:filter, %{
-       classification: "",
+       classifications: [],
        search: "",
        account: "",
        date_from: "",
@@ -65,9 +65,16 @@ defmodule FiostatsWeb.PageLive do
     socket =
       case Jason.decode(params["filter"] || "{}") do
         {:ok, filter} ->
+          classifications =
+            case filter && filter["classifications"] do
+              nil -> []
+              value when is_list(value) -> value
+              _other -> []
+            end
+
           socket
           |> assign(:filter, %{
-            classification: (filter && filter["classification"]) || "",
+            classifications: classifications,
             search: (filter && filter["search"]) || "",
             account: (filter && filter["account"]) || "",
             date_from: (filter && filter["date_from"]) || "",
@@ -213,12 +220,66 @@ defmodule FiostatsWeb.PageLive do
   defp maybe_update(filter, _key, nil), do: filter
   defp maybe_update(filter, key, value), do: Map.put(filter, key, value)
 
+  def handle_event("add_classification", %{"classifications" => classification}, socket)
+      when classification != "" do
+    current_filter = socket.assigns.filter
+
+    updated_classifications =
+      if classification in current_filter.classifications do
+        current_filter.classifications
+      else
+        [classification | current_filter.classifications]
+      end
+
+    updated_filter = Map.put(current_filter, :classifications, updated_classifications)
+
+    {:noreply,
+     socket
+     |> push_patch(
+       to:
+         "/?dashboard=#{socket.assigns.dashboard}&period=#{socket.assigns.period}&filter=#{Jason.encode!(updated_filter)}"
+     )}
+  end
+
+  def handle_event("add_classification", _params, socket), do: {:noreply, socket}
+
+  def handle_event("remove_classification", %{"classification" => to_remove}, socket) do
+    current_filter = socket.assigns.filter
+
+    updated_classifications =
+      current_filter.classifications
+      |> Enum.reject(&(&1 == to_remove))
+
+    updated_filter = Map.put(current_filter, :classifications, updated_classifications)
+
+    {:noreply,
+     socket
+     |> push_patch(
+       to:
+         "/?dashboard=#{socket.assigns.dashboard}&period=#{socket.assigns.period}&filter=#{Jason.encode!(updated_filter)}"
+     )}
+  end
+
   def handle_event("filter", params, socket) do
     current_filter = socket.assigns.filter
 
+    classifications =
+      case params["classifications"] do
+        nil -> nil
+        value when is_list(value) ->
+          # Filter out empty strings and invalid values
+          value
+          |> Enum.reject(&(&1 == "" || &1 == "[]"))
+          |> case do
+            [] -> []
+            filtered -> filtered
+          end
+        _other -> []
+      end
+
     updated_filter =
       current_filter
-      |> maybe_update(:classification, params["classification"])
+      |> maybe_update(:classifications, classifications)
       |> maybe_update(:search, params["search"])
       |> maybe_update(:date_from, params["date_from"])
       |> maybe_update(:date_to, params["date_to"])
