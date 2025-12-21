@@ -17,11 +17,12 @@ defmodule Fiostats.Aggregations.Transactions do
     )
   end
 
-  defp maybe_filter_eq(query, "", _field), do: query
+  defp maybe_filter_eq(query, [], _field), do: query
 
-  defp maybe_filter_eq(query, value, :classification),
-    do: Ash.Query.filter(query, classification == ^value)
+  defp maybe_filter_eq(query, value, :classifications) when is_list(value),
+    do: Ash.Query.filter(query, classification in ^value)
 
+  defp maybe_filter_eq(query, "", :account), do: query
   defp maybe_filter_eq(query, value, :account), do: Ash.Query.filter(query, account == ^value)
 
   defp maybe_filter_gte(query, "", _field), do: query
@@ -33,7 +34,7 @@ defmodule Fiostats.Aggregations.Transactions do
   defp apply_filter(query, filter) do
     query
     |> maybe_filter_search(filter.search, filter.is_fuzzy, :title)
-    |> maybe_filter_eq(filter.classification, :classification)
+    |> maybe_filter_eq(filter.classifications, :classifications)
     |> maybe_filter_eq(filter.account, :account)
     |> maybe_filter_gte(filter.date_from, :date)
     |> maybe_filter_lte(filter.date_to, :date)

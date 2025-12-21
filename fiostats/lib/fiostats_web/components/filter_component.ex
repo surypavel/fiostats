@@ -16,23 +16,48 @@ defmodule FiostatsWeb.Components.FilterComponent do
             Type
           </span>
           <button
-            :if={@filter.classification != ""}
+            :if={@filter.classifications != []}
             class="btn btn-ghost btn-xs"
             type="button"
             phx-click="filter"
-            phx-value-classification=""
+            phx-value-classifications=""
           >
             Clear
           </button>
         </legend>
 
-        <select name="classification" class={["w-full select rounded-full"]}>
-          <option value="">Any</option>
-          {Phoenix.HTML.Form.options_for_select(
-            @options |> Map.new(fn option -> {option.name, option.id} end),
-            @filter.classification
-          )}
-        </select>
+        <%= if @filter.classifications == [] do %>
+          <select
+            name="classifications"
+            class={["w-full select rounded-full"]}
+            phx-change="add_classification"
+          >
+            <option value="">Any</option>
+            {Phoenix.HTML.Form.options_for_select(
+              @options |> Map.new(fn option -> {option.name, option.id} end),
+              ""
+            )}
+          </select>
+        <% else %>
+          <div class="flex flex-wrap gap-1 p-2 border border-base-300 rounded-full min-h-10 items-center">
+            <%= for classification <- @filter.classifications do %>
+              <% option = Enum.find(@options, fn opt -> opt.id == classification end) %>
+              <%= if option do %>
+                <span class="badge badge-primary gap-1">
+                  {option.name}
+                  <button
+                    type="button"
+                    phx-click="remove_classification"
+                    phx-value-classification={classification}
+                    class="hover:text-error"
+                  >
+                    ×
+                  </button>
+                </span>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
       </fieldset>
 
       <fieldset class="fieldset sm:col-span-2">

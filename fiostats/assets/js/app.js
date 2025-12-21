@@ -40,20 +40,20 @@ Hooks.BarChart = {
             //     config.dataPointIndex
             //   ];
 
-            const classification = this.data.series[config.seriesIndex].deps[0];
+            const classifications = this.data.series[config.seriesIndex].deps;
             const bounds = this.data.bounds[config.dataPointIndex];
 
             this.pushEvent("filter", {
-              classification,
+              classifications,
               date_from: bounds[0],
               date_to: bounds[1],
             });
           },
           legendClick: (chartContext, seriesIndex, { config }) => {
             console.log(config);
-            const classification = this.data.series[seriesIndex].deps[0];
+            const classifications = this.data.series[seriesIndex].deps;
             this.pushEvent("filter", {
-              classification,
+              classifications,
             });
           },
         },
