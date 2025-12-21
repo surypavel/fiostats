@@ -33,14 +33,13 @@ defmodule Fiostats.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:oban, "~> 2.0"},
-      {:ash_ai, "~> 0.2"},
+      {:oban, "~> 2.20"},
       {:contex, "~> 0.5.0"},
       {:httpoison, "~> 2.0"},
-      {:ash_postgres, "~> 2.0"},
-      {:ash_phoenix, "~> 2.0"},
-      {:ash, "~> 3.7"},
-      {:igniter, "~> 0.3"},
+      {:ash_postgres, "~> 2.6"},
+      {:ash_phoenix, "~> 2.3"},
+      {:ash, "~> 3.11"},
+      {:igniter, "~> 0.7"},
       {:phoenix, "~> 1.8.3"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.10"},
@@ -71,7 +70,7 @@ defmodule Fiostats.MixProject do
       {:bandit, "~> 1.5"},
       {:langchain, "~> 0.4"},
       {:kino, "~> 0.12.0"},
-      {:ash_oban, "~> 0.4"}
+      {:ash_oban, "~> 0.7"}
     ]
   end
 

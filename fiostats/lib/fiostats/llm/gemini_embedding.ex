@@ -1,13 +1,9 @@
 defmodule Fiostats.LLM.GeminiEmbedding do
-  use AshAi.EmbeddingModel
-
   @api_key System.get_env("GEMINI_API_KEY")
   @model_url "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=#{@api_key}"
 
-  @impl true
   def dimensions(_opts), do: 768
 
-  @impl true
   def generate(texts, _opts) do
     body =
       Jason.encode!(%{

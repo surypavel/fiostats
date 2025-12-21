@@ -4,27 +4,10 @@ defmodule Fiostats.Transactions.Transaction do
   require Ash.Sort
 
   use Ash.Resource,
-    extensions: [AshAi, AshOban],
+    extensions: [AshOban],
     domain: Fiostats.Transactions,
     data_layer: AshPostgres.DataLayer,
     notifiers: Ash.Notifier.PubSub
-
-  vectorize do
-    full_text do
-      text(fn record ->
-        """
-        Comment of the card transaction: #{record.title}
-        """
-      end)
-
-      used_attributes([:title])
-    end
-
-    strategy :ash_oban
-    ash_oban_trigger_name(:my_vectorize_trigger)
-
-    embedding_model(Fiostats.LLM.GeminiEmbedding)
-  end
 
   oban do
     triggers do
@@ -122,6 +105,13 @@ defmodule Fiostats.Transactions.Transaction do
       require_atomic? false
       change Fiostats.Changes.CompletionChange
     end
+
+    update :ash_ai_update_embeddings do
+      require_atomic? false
+      accept []
+
+      change Fiostats.Changes.EmbeddingChange
+    end
   end
 
   pub_sub do
@@ -168,6 +158,10 @@ defmodule Fiostats.Transactions.Transaction do
     end
 
     attribute :validation_source, Fiostats.Types.ValidationSource do
+      allow_nil? true
+    end
+
+    attribute :full_text_vector, Ash.Type.Vector do
       allow_nil? true
     end
   end
