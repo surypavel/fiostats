@@ -1,13 +1,9 @@
 defmodule Fiostats.LLM.MistralEmbedding do
-  use AshAi.EmbeddingModel
-
   @api_key System.get_env("MISTRAL_API_KEY")
   @model_url "https://api.mistral.ai/v1/embeddings"
 
-  @impl true
   def dimensions(_opts), do: 1024
 
-  @impl true
   def generate(texts, _opts) do
     headers = [
       {"Authorization", "Bearer #{@api_key}"},
