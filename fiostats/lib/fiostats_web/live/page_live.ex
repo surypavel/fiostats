@@ -5,13 +5,34 @@ defmodule FiostatsWeb.PageLive do
   alias Fiostats.Imports
   use Phoenix.LiveView
 
-  def assign_transactions(socket) do
+  def assign_transactions(socket, page_opts \\ [limit: 50, count: true], mode \\ :reset) do
     filter = socket.assigns.filter
-    data = Fiostats.Aggregations.Transactions.get_data(filter)
+    data = Fiostats.Aggregations.Transactions.get_data(filter, page_opts)
+    page = data.payments_page
+
+    # Extract next cursor from page metadata
+    next_cursor =
+      case AshPhoenix.LiveView.page_link_params(page, "next") do
+        :invalid -> nil
+        params -> params[:after]
+      end
+
+    {socket, loaded_count} =
+      case mode do
+        :reset ->
+          # Reset stream when filters change
+          {socket |> stream(:payments, page.results, reset: true), length(page.results)}
+
+        :append ->
+          # Append to existing stream when loading more
+          current_loaded = Map.get(socket.assigns, :loaded_count, 0)
+          {socket |> stream(:payments, page.results), current_loaded + length(page.results)}
+      end
 
     socket
-    |> assign(:payments, data.payments)
-    |> assign(:payments_count, data.payments_count)
+    |> assign(:next_cursor, next_cursor)
+    |> assign(:total_count, page.count || 0)
+    |> assign(:loaded_count, loaded_count)
     |> assign(:graph_data, data.graph_data)
     |> send_update_data()
   end
@@ -33,7 +54,11 @@ defmodule FiostatsWeb.PageLive do
        is_fuzzy: false
      })
      |> assign(:dashboard, "spending")
-     |> assign(:period, "year")}
+     |> assign(:period, "year")
+     |> assign(:next_cursor, nil)
+     |> assign(:total_count, 0)
+     |> assign(:loaded_count, 0)
+     |> stream(:payments, [])}
   end
 
   def handle_params(params, _uri, socket) do
@@ -66,7 +91,7 @@ defmodule FiostatsWeb.PageLive do
         _ -> socket |> assign(:period, params["period"])
       end
 
-    {:noreply, socket |> assign_transactions()}
+    {:noreply, socket |> assign_transactions([limit: 50, count: true], :reset)}
   end
 
   def render(assigns) do
@@ -96,7 +121,7 @@ defmodule FiostatsWeb.PageLive do
         <div class="md:space-y-6 space-y-2">
           <FiostatsWeb.Components.FilterComponent.filter options={@options} filter={@filter} />
 
-          <%= if @payments_count > 0 do %>
+          <%= if @total_count > 0 do %>
             <div class="card bg-base-100 w-full">
               <div class="card-body">
                 <h2 class="card-title">Dashboards</h2>
@@ -154,10 +179,29 @@ defmodule FiostatsWeb.PageLive do
               <h2 class="card-title">Transactions</h2>
 
               <FiostatsWeb.Components.TableComponent.table
+                id="payments-table"
+                payments={@streams.payments}
                 options={@options}
-                payments={@payments |> Enum.slice(0, 100)}
-                payments_count={@payments_count}
               />
+            </div>
+
+            <div class="card-actions justify-center p-4">
+              <div class="flex flex-col items-center gap-2">
+                <%= if @next_cursor do %>
+                  <button class="btn btn-primary btn-sm" phx-click="load_more">
+                    Load More
+                  </button>
+                  <div class="text-sm text-slate-500">
+                    Loaded {@loaded_count} of {@total_count}
+                  </div>
+                <% else %>
+                  <div class="text-sm text-slate-500">
+                    <%= if @total_count > 0 do %>
+                      All {@total_count} results loaded
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
             </div>
           </div>
         </div>
@@ -227,8 +271,19 @@ defmodule FiostatsWeb.PageLive do
     {:noreply, socket |> put_flash(:info, "Classification updated")}
   end
 
+  def handle_event("load_more", _, socket) do
+    cursor = socket.assigns.next_cursor
+
+    if cursor do
+      page_opts = [limit: 50, count: true, after: cursor]
+      {:noreply, assign_transactions(socket, page_opts, :append)}
+    else
+      {:noreply, socket}
+    end
+  end
+
   def handle_info(%Phoenix.Socket.Broadcast{topic: "transactions"}, socket) do
-    {:noreply, socket |> assign_transactions()}
+    {:noreply, socket |> assign_transactions([limit: 50, count: true], :reset)}
   end
 
   def send_update_data(socket) do
