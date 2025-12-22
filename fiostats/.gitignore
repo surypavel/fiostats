@@ -36,3 +36,6 @@ npm-debug.log
 /assets/node_modules/
 .env
 .elixir_ls
+
+# Sensitive seed data with real account numbers
+/priv/repo/seeds.exs
