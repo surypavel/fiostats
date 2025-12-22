@@ -1,13 +1,10 @@
 defmodule Fiostats.Changes.CompletionChange do
   use Ash.Resource.Change
 
-  def account_classify(nil) do
-    nil
-  end
+  def account_classify(nil), do: nil
 
   def account_classify(bank_account) do
-    Fiostats.Transactions.Accounts.get_options()
-    |> Enum.find(fn {_, acc, _} -> acc == bank_account end)
+    Fiostats.Transactions.Accounts.get_classification(bank_account)
   end
 
   def change(changeset, _opts, _) do
@@ -15,7 +12,7 @@ defmodule Fiostats.Changes.CompletionChange do
     bank_classification = data.account |> account_classify()
 
     case bank_classification do
-      {_, _, classification} ->
+      classification when is_binary(classification) ->
         changeset
         |> Ash.Changeset.change_attribute(:classification, classification)
         |> Ash.Changeset.change_attribute(:validation_source, :bank)
@@ -25,7 +22,7 @@ defmodule Fiostats.Changes.CompletionChange do
           "Found completion via bank account"
         )
 
-      _ ->
+      nil ->
         similar_transactions =
           Fiostats.Transactions.Transaction
           |> Ash.Query.for_read(:similar, %{
@@ -61,6 +58,5 @@ defmodule Fiostats.Changes.CompletionChange do
             end
         end
     end
-    |> IO.inspect()
   end
 end

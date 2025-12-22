@@ -1,9 +1,0 @@
-defmodule Fiostats.Transactions.Accounts do
-  @options [
-    {:your_id, "account_number", "rent_and_apartment_received"},
-  ]
-
-  def get_options() do
-    @options
-  end
-end

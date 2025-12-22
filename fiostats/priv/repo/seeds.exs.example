@@ -1,0 +1,52 @@
+# Script for populating the database. You can run it as:
+#
+#     mix run priv/repo/seeds.exs
+#
+# Inside the script, you can read and write to any of your
+# repositories directly:
+#
+#     Fiostats.Repo.insert!(%Fiostats.SomeSchema{})
+#
+# We recommend using the bang functions (`insert!`, `update!`
+# and so on) as they will fail if something goes wrong.
+
+alias Fiostats.Transactions.Account
+
+# Seed accounts for transaction classification
+# Copy this file to seeds.exs and customize with your actual account data
+#
+# IMPORTANT: The seeds.exs file contains sensitive account information
+# and should NOT be committed to version control.
+#
+# Account structure:
+# - account_number: The bank account number to match against transaction.account
+# - name: Human-readable label for the account
+# - classification: The classification to apply (must match a valid TransactionType ID)
+#
+# Valid classifications include:
+# - "rent_and_apartment_received" - Incoming rent payments
+# - "rent_and_apartment" - Outgoing rent/apartment costs
+# - "rent" - Rent-related transactions
+# - "earnings" - Income/salary
+# - "ignored" - Transactions to ignore in reports
+# - "groceries", "bars_and_restaurants", "concerts_and_events", etc.
+
+accounts_data = [
+  %{account_number: "1234567890", name: "Example Checking", classification: "ignored"},
+  %{account_number: "0987654321", name: "Example Savings", classification: "ignored"},
+  %{account_number: "555-1234567", name: "Example Rent Account", classification: "rent_and_apartment"}
+]
+
+Enum.each(accounts_data, fn attrs ->
+  case Account.by_account_number(attrs.account_number) do
+    {:ok, _existing} ->
+      IO.puts("Account #{attrs.account_number} (#{attrs.name}) already exists, skipping...")
+
+    {:error, _} ->
+      Account.create!(attrs.account_number, attrs.name, attrs.classification)
+      IO.puts("Created account: #{attrs.name} (#{attrs.account_number})")
+  end
+end)
+
+IO.puts("\n✓ Seed data loaded successfully!")
+IO.puts("Total accounts: #{length(accounts_data)}")

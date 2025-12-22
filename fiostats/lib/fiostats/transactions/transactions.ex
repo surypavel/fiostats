@@ -3,5 +3,6 @@ defmodule Fiostats.Transactions do
 
   resources do
     resource Fiostats.Transactions.Transaction
+    resource Fiostats.Transactions.Account
   end
 end
