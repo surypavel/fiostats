@@ -29,11 +29,17 @@ defmodule FiostatsWeb.PageLive do
           {socket |> stream(:payments, page.results), current_loaded + length(page.results)}
       end
 
+    total_amount =
+      data.graph_data
+      |> Enum.map(fn [amount | _] -> amount || Decimal.new(0) end)
+      |> Enum.reduce(Decimal.new(0), &Decimal.add/2)
+
     socket
     |> assign(:next_cursor, next_cursor)
     |> assign(:total_count, page.count || 0)
     |> assign(:loaded_count, loaded_count)
     |> assign(:graph_data, data.graph_data)
+    |> assign(:total_amount, total_amount)
     |> send_update_data()
   end
 
@@ -58,6 +64,7 @@ defmodule FiostatsWeb.PageLive do
      |> assign(:next_cursor, nil)
      |> assign(:total_count, 0)
      |> assign(:loaded_count, 0)
+     |> assign(:total_amount, Decimal.new(0))
      |> stream(:payments, [])}
   end
 
@@ -189,6 +196,7 @@ defmodule FiostatsWeb.PageLive do
                 id="payments-table"
                 payments={@streams.payments}
                 options={@options}
+                total={@total_amount}
               />
             </div>
 

@@ -4,6 +4,7 @@ defmodule FiostatsWeb.Components.TableComponent do
   attr :payments, :list, required: true
   attr :options, :list
   attr :id, :string, required: true
+  attr :total, :any, required: true
 
   def table(assigns) do
     ~H"""
@@ -15,6 +16,20 @@ defmodule FiostatsWeb.Components.TableComponent do
           <th class="text-slate-500 w-40">Amount</th>
           <th class="text-slate-500 w-28">Paid at</th>
           <th class="text-slate-500 w-full">Description</th>
+        </tr>
+        <tr class="border-b border-slate-200">
+          <th></th>
+          <th class="text-slate-500 font-semibold">Total</th>
+          <th>
+            <strong class={[
+              Decimal.compare(@total, Decimal.new(0)) == :gt && "text-success",
+              Decimal.compare(@total, Decimal.new(0)) == :lt && "text-error"
+            ]}>
+              {@total |> Decimal.round(0) |> Decimal.to_integer()} CZK
+            </strong>
+          </th>
+          <th></th>
+          <th></th>
         </tr>
       </thead>
       <tbody id={@id} phx-update="stream">

@@ -27,7 +27,6 @@ defmodule Fiostats.LLM.GeminiCompletion do
         Message.new_user!("Classify transaction: " <> text)
       ])
       |> LLMChain.run()
-      |> IO.inspect()
 
     with {:ok, %{last_message: %{content: [%{content: content}]}}} <- llm_response do
       [classification | reasoning] = content |> String.split("\n")
