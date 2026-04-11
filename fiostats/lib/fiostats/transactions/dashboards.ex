@@ -5,7 +5,7 @@ defmodule Fiostats.Transactions.Dashboards do
       name: "Spending",
       columns: [
         # Blue Violet
-        %{name: "Rent", expr: "rent_and_apartment/3.0", color: "#8A2BE2"},
+        %{name: "Rent", expr: "rent_and_apartment", color: "#8A2BE2"},
         # Tomato
         %{name: "Eating out", expr: "bars_and_restaurants", color: "#FF6347"},
         # Light Sea Green
@@ -56,7 +56,7 @@ defmodule Fiostats.Transactions.Dashboards do
         %{
           name: "Savings",
           expr:
-            "-earnings-taxes-rent_and_apartment/3.0-bars_and_restaurants-means_of_transport-groceries-concerts_and_events-travel_costs-revolut-goods_and_purchases-atm_withdrawal-other",
+            "-earnings-taxes-rent_and_apartment-bars_and_restaurants-means_of_transport-groceries-concerts_and_events-travel_costs-revolut-goods_and_purchases-atm_withdrawal-other",
           color: "#D0B22A"
         }
       ]

@@ -59,7 +59,7 @@ defmodule Fiostats.Aggregations.Transactions do
       ash_read_query
       |> Ecto.Query.subquery()
       |> Ecto.Query.select([p], [
-        sum(p.amount),
+        sum(fragment("? / ?", p.amount, p.share)),
         p.classification,
         fragment("date_part('month', ?)::int", p.date),
         fragment("date_part('year', ?)::int", p.date)

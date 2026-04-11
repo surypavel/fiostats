@@ -85,7 +85,7 @@ defmodule Fiostats.Transactions.Transaction do
     end
 
     update :manually_set_classification do
-      accept [:classification]
+      accept [:classification, :share]
 
       change set_attribute(:validation_source, :human)
       change set_attribute(:classification_reason, nil)
@@ -151,6 +151,11 @@ defmodule Fiostats.Transactions.Transaction do
 
     attribute :classification, :string do
       allow_nil? true
+    end
+
+    attribute :share, :decimal do
+      allow_nil? false
+      default Decimal.new(1)
     end
 
     attribute :classification_reason, :string do

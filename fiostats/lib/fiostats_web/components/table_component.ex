@@ -89,6 +89,9 @@ defmodule FiostatsWeb.Components.TableComponent do
                 Decimal.compare(payment.amount, Decimal.new(0)) == :lt && "text-error"
               ]}>
                 {payment.amount |> Decimal.round(0) |> Decimal.to_integer()} CZK
+                <%= if Decimal.compare(payment.share, Decimal.new(1)) != :eq do %>
+                  <sup class="text-slate-400 font-normal">1/{payment.share |> Decimal.round(0) |> Decimal.to_integer()}</sup>
+                <% end %>
               </strong>
             </td>
             <td>{Calendar.strftime(payment.date, "%d. %m. %Y")}</td>

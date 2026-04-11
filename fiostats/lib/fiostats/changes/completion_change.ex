@@ -7,6 +7,9 @@ defmodule Fiostats.Changes.CompletionChange do
     Fiostats.Transactions.Accounts.get_classification(bank_account)
   end
 
+  defp default_share("rent_and_apartment"), do: Decimal.new(2)
+  defp default_share(_), do: Decimal.new(1)
+
   def change(changeset, _opts, _) do
     data = changeset.data |> Ash.load!(:full_text_vector)
     bank_classification = data.account |> account_classify()
@@ -15,6 +18,7 @@ defmodule Fiostats.Changes.CompletionChange do
       classification when is_binary(classification) ->
         changeset
         |> Ash.Changeset.change_attribute(:classification, classification)
+        |> Ash.Changeset.change_attribute(:share, default_share(classification))
         |> Ash.Changeset.change_attribute(:validation_source, :bank)
         |> Ash.Changeset.change_attribute(:classification_based_on_id, nil)
         |> Ash.Changeset.change_attribute(
@@ -35,6 +39,7 @@ defmodule Fiostats.Changes.CompletionChange do
           [best_match | _] ->
             changeset
             |> Ash.Changeset.change_attribute(:classification, best_match.classification)
+            |> Ash.Changeset.change_attribute(:share, default_share(best_match.classification))
             |> Ash.Changeset.change_attribute(:classification_based_on_id, best_match.id)
             |> Ash.Changeset.change_attribute(:validation_source, :embedding)
             |> Ash.Changeset.change_attribute(
@@ -47,6 +52,7 @@ defmodule Fiostats.Changes.CompletionChange do
               {:ok, completion, reason} ->
                 changeset
                 |> Ash.Changeset.change_attribute(:classification, completion)
+                |> Ash.Changeset.change_attribute(:share, default_share(completion))
                 |> Ash.Changeset.change_attribute(:classification_based_on_id, nil)
                 |> Ash.Changeset.change_attribute(:validation_source, :llm)
                 |> Ash.Changeset.change_attribute(:classification_reason, reason)
