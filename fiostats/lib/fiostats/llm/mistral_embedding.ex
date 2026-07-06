@@ -1,12 +1,11 @@
 defmodule Fiostats.LLM.MistralEmbedding do
-  @api_key System.get_env("MISTRAL_API_KEY")
   @model_url "https://api.mistral.ai/v1/embeddings"
 
   def dimensions(_opts), do: 1024
 
   def generate(texts, _opts) do
     headers = [
-      {"Authorization", "Bearer #{@api_key}"},
+      {"Authorization", "Bearer #{System.fetch_env!("MISTRAL_API_KEY")}"},
       {"Content-Type", "application/json"}
     ]
 

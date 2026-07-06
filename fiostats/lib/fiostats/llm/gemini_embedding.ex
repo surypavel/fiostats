@@ -1,6 +1,9 @@
 defmodule Fiostats.LLM.GeminiEmbedding do
-  @api_key System.get_env("GEMINI_API_KEY")
-  @model_url "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=#{@api_key}"
+  defp model_url do
+    api_key = System.fetch_env!("GEMINI_API_KEY")
+
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=#{api_key}"
+  end
 
   def dimensions(_opts), do: 768
 
@@ -23,7 +26,7 @@ defmodule Fiostats.LLM.GeminiEmbedding do
       {"Content-Type", "application/json"}
     ]
 
-    case HTTPoison.post(@model_url, body, headers) do
+    case HTTPoison.post(model_url(), body, headers) do
       {:ok, %HTTPoison.Response{status_code: 200, body: response_body}} ->
         response = Jason.decode!(response_body)
         embedding = get_in(response, ["embedding", "values"])
