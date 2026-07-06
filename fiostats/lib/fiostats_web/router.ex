@@ -14,8 +14,12 @@ defmodule FiostatsWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :basic_auth do
+    plug :require_basic_auth
+  end
+
   scope "/", FiostatsWeb do
-    pipe_through :browser
+    pipe_through [:browser, :basic_auth]
 
     live "/", PageLive
     live "/settings", SettingsLive
@@ -25,6 +29,19 @@ defmodule FiostatsWeb.Router do
   # scope "/api", FiostatsWeb do
   #   pipe_through :api
   # end
+
+  defp require_basic_auth(conn, _opts) do
+    case Application.get_env(:fiostats, :basic_auth) do
+      nil ->
+        conn
+
+      config ->
+        Plug.BasicAuth.basic_auth(conn,
+          username: Keyword.fetch!(config, :username),
+          password: Keyword.fetch!(config, :password)
+        )
+    end
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:fiostats, :dev_routes) do

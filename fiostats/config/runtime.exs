@@ -55,6 +55,14 @@ if config_env() == :prod do
 
   config :fiostats, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
+  if basic_auth_username = System.get_env("BASIC_AUTH_USERNAME") do
+    config :fiostats, :basic_auth,
+      username: basic_auth_username,
+      password:
+        System.get_env("BASIC_AUTH_PASSWORD") ||
+          raise("BASIC_AUTH_PASSWORD is required when BASIC_AUTH_USERNAME is set")
+  end
+
   config :fiostats, FiostatsWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
     http: [
