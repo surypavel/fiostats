@@ -9,15 +9,22 @@ defmodule FiostatsWeb.Components.TableComponent do
   def table(assigns) do
     ~H"""
     <table class="table table-fixed w-full table-responsive">
+      <colgroup>
+        <col class="w-4" />
+        <col class="w-40" />
+        <col class="w-40" />
+        <col class="w-28" />
+        <col />
+      </colgroup>
       <thead>
         <tr class="max-sm:hidden">
-          <th class="text-slate-500 w-4"></th>
-          <th class="text-slate-500 w-40">Type</th>
-          <th class="text-slate-500 w-40">Amount</th>
-          <th class="text-slate-500 w-28">Paid at</th>
-          <th class="text-slate-500 w-full">Description</th>
+          <th class="text-slate-500"></th>
+          <th class="text-slate-500">Type</th>
+          <th class="text-slate-500">Amount</th>
+          <th class="text-slate-500">Paid at</th>
+          <th class="text-slate-500">Description</th>
         </tr>
-        <tr class="border-b border-slate-200">
+        <tr class="border-b border-slate-200 max-sm:hidden">
           <th></th>
           <th class="text-slate-500 font-semibold">Total</th>
           <th>
@@ -30,6 +37,17 @@ defmodule FiostatsWeb.Components.TableComponent do
           </th>
           <th></th>
           <th></th>
+        </tr>
+        <tr class="border-b border-slate-200 sm:hidden">
+          <th colspan="5" class="text-slate-500 font-semibold">
+            Total:
+            <strong class={[
+              Decimal.compare(@total, Decimal.new(0)) == :gt && "text-success",
+              Decimal.compare(@total, Decimal.new(0)) == :lt && "text-error"
+            ]}>
+              {@total |> Decimal.round(0) |> Decimal.to_integer()} CZK
+            </strong>
+          </th>
         </tr>
       </thead>
       <tbody id={@id} phx-update="stream">
