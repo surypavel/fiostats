@@ -7,7 +7,7 @@ defmodule Fiostats.Changes.CompletionChange do
     Fiostats.Transactions.Accounts.get_classification(bank_account)
   end
 
-  defp default_share("rent_and_apartment"), do: Decimal.new(2)
+  defp default_share("rent_and_apartment"), do: Decimal.new(3)
   defp default_share(_), do: Decimal.new(1)
 
   def change(changeset, _opts, _) do
