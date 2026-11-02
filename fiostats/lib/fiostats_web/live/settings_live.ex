@@ -2,12 +2,14 @@ defmodule FiostatsWeb.SettingsLive do
   use Phoenix.LiveView
   alias Fiostats.Transactions.TransactionTypes
   alias Fiostats.Transactions.Dashboards
+  alias Fiostats.Transactions.Accounts
 
   def mount(_params, _session, socket) do
     {:ok,
      socket
      |> assign(:classifications, TransactionTypes.get_options())
-     |> assign(:dashboards, Dashboards.get_options())}
+     |> assign(:dashboards, Dashboards.get_options())
+     |> assign(:accounts, Accounts.list_accounts())}
   end
 
   def render(assigns) do
@@ -44,6 +46,27 @@ defmodule FiostatsWeb.SettingsLive do
                 <p :if={classification.llm_description == nil} class="text-warning">
                   Not used by LLM
                 </p>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+
+      <h1 class="text-xl font-bold mb-6">Accounts</h1>
+      <div class="space-y-4">
+        <ul class="list bg-base-100 rounded-box shadow-md">
+          <li :if={@accounts == []} class="list-row text-base-content/70">
+            No accounts defined
+          </li>
+          <%= for account <- @accounts do %>
+            <li class="list-row">
+              <div class="flex flex-col">
+                <span class="text-lg font-medium">{account.name}</span>
+                <span class="text-sm font-mono text-base-content/70">{account.account_number}</span>
+              </div>
+              <div class="list-col-grow"></div>
+              <div class="flex items-center">
+                <span class="badge badge-soft badge-primary">{account.classification}</span>
               </div>
             </li>
           <% end %>
